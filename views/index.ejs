@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/header') %>
+
+<body class="containerd">
+  <%- include('./partials/navbar') %>
+  <div class="container mt-3 mb-5">
+    <div class="card" style="width: 18rem;margin-left: auto;margin-right: auto;">
+      <img src="<%= imageurl %>" class="card-img-top" alt="..." style="height: 200px;">
+      <div class="card-body">
+        <h5 class="card-title"><%= author %></h5>
+        <h6 class="card-subtitle mb-2 text-muted"><%= author %></h6>
+        <p class="card-text"><%= content %></p>
+        <!-- <a href="#" class="card-link">Card link</a>
+        <a href="#" class="card-link">Another link</a> -->
+        <form action="/save" method="POST" style="display:inline-block">
+          <input type="hidden" name="email" id="email" value="<%= email %>" >
+          <input type="hidden" name="content" id="content" value="<%= content %>" >
+          <input type="hidden" name="author" id="author" value="<%= author %>" >
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+        <a href="/quote"><button type="button" class="btn btn-primary">Get new</button></a>
+      </div>
+    </div>
+  </div>
+  <%- include('./partials/footer') %>
+  
+</body>
+</html>

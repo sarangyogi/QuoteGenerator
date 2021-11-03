@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/header') %>
+<body class="containerd">
+  <%- include('./partials/navbar') %>
+  <div class="container mt-5 mb-5" style="display: flex;flex-wrap: wrap;justify-content: center;">
+    <% for(let i=0;i<result.length;i++){ %>
+      <div class="card" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title"><%= result[i].author %></h5>
+          <p class="card-text"><%= result[i].content %></p>
+          <!-- <a href="/deletequote"><button type="button" class="btn btn-primary">Delete</button></a> -->
+          <!-- <a href="#" class="card-link">Card link</a>
+          <a href="#" class="card-link">Another link</a> -->
+          <form action="/deletequote" method="POST">
+            <input type="hidden" name="email" id="email" value="<%= result[i].email %>" >
+            <input type="hidden" name="content" id="content" value="<%= result[i].content %>" >
+            <input type="hidden" name="author" id="author" value="<%= result[i].author %>" >
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </form>
+        </div>
+      </div> 
+    <% } %>
+  </div>
+  <%- include('./partials/footer') %>
+</body>
+</html>
+
+

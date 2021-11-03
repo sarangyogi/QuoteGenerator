@@ -1,0 +1,6 @@
+.navbar-expand-lg .navbar-collapse{
+    justify-content: space-around;
+}
+.login-container{
+    max-width: 500px;
+}

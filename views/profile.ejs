@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/header') %>
+<body class="containerd">
+  <%- include('./partials/navbar') %>
+  <div class="container mt-3">
+    <div class="card" style="width: 18rem;margin-left: auto;margin-right: auto;">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTOkHm3_mPQ5PPRvGtU6Si7FJg8DVDtZ47rw&usqp=CAU" class="card-img-top" alt="profile">
+      <div class="card-body" style="text-align: center;">
+        <h5 class="card-title"><%= nickname %></h5>
+        <p class="card-text"><%= email %></p>
+        <a href="/savedquotes" class="btn btn-primary">Saved Quotes</a>
+      </div>
+    </div>
+      
+  </div>
+  <%- include('./partials/footer') %>
+</body>
+</html>
