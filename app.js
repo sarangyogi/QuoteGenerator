@@ -5,34 +5,20 @@ const fetch =require('cross-fetch');
 const User=require('./models/user');
 const Quote=require('./models/quotes');
 const CurrentLogin=require('./models/currentlogin');
+const axios = require('axios');
 var requestIp = require('request-ip');
 
 require('./db/connection');
 
 // require('dotenv').config();
 
-
-// const { auth ,requiresAuth } = require('express-openid-connect');
-// app.use(
-//     auth({
-//         authRequired:false,
-//         auth0Logout:true,
-//         issuerBaseURL: process.env.ISSUER_BASE_URL,
-//         baseURL: process.env.BASE_URL,
-//         clientID: process.env.CLIENT_ID,
-//         secret: process.env.SECRET,
-//         // idpLogout: true,
-//     })
-// );
-
 const partial_path=path.join(__dirname,'./views/partials')
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// app.get('/',(req,res)=>{
-//     res.render(req.oidc.isAuthenticated() ? 'home': 'error');
-// })
+app.use(express.static(__dirname + '/public'));
+
 let LOGIN=false;
 let NICKNAME;
 let EMAIL;
@@ -53,40 +39,90 @@ app.get('/',(req,res)=>{
     .catch((error)=>{
         res.render('register',{login:false});
     })
-    
-    // if(LOGIN){
-    //     res.render('home');
-    // }
-    // else{
-    //     res.render('login');
-    // }
 })
-const getimage=async (data)=>{
-    const searchimg=data.author;
-    const text=searchimg.split(' ');
-    const image= await fetch(`https://pixabay.com/api/?key=24162915-439cdea99849b510b56191825&q=${text[0]}+${text[1]}&image_type=photo`)
-    const imagedata=await image.json();
-    // console.log(imagedata);
-    // console.log(imagedata["hits"][0]["webformatURL"]);
-    if(imagedata["totalHits"]===0){
-        return "https://dynamicdistributors.in/wp-content/uploads/2021/02/114-1149847_avatar-unknown-dp.jpg";
-    }
-    return (imagedata["hits"][0]["webformatURL"]);
-}
+
+// const getimage=async(data)=>{
+//     const searchimg=data.author;
+//     const text=searchimg.split(' ');
+//     const imagedata=await axios.get(`https://pixabay.com/api/?key=24162915-439cdea99849b510b56191825&q=${text[0]}+${text[1]}&image_type=photo`)
+//     if(imagedata["totalHits"]===0){
+//         return "https://dynamicdistributors.in/wp-content/uploads/2021/02/114-1149847_avatar-unknown-dp.jpg";
+//     }
+//     return (imagedata["hits"][0]["webformatURL"]);
+    // try{
+    //     const searchimg=data.author;
+    //     const text=searchimg.split(' ');
+    //     const imagedata=await axios.get(`https://pixabay.com/api/?key=24162915-439cdea99849b510b56191825&q=${text[0]}+${text[1]}&image_type=photo`)
+    //     if(imagedata["totalHits"]===0){
+    //         return "https://dynamicdistributors.in/wp-content/uploads/2021/02/114-1149847_avatar-unknown-dp.jpg";
+    //     }
+    //     return (imagedata["hits"][0]["webformatURL"]);
+
+    // }catch(error){
+    //     console.log("Error occured in get image!");
+    //     return "https://dynamicdistributors.in/wp-content/uploads/2021/02/114-1149847_avatar-unknown-dp.jpg";
+    // }
+// }
+// const randomQuote=async()=>{
+    
+//     const result=await axios.get('https://api.quotable.io/random')
+//     .then((res)=>{
+//         return res;
+//     }).catch((error)=>{
+//         console.log(error);
+//         return error
+//     })
+//     // console.log(result["data"]);
+// }
 app.get('/quote',(req,res)=>{
     const user=User.findOne({email:EMAIL})
     .then((result)=>{
         if(result.islogin){
-            async function randomQuote() {
-                const response = await fetch('https://api.quotable.io/random')
-                const data = await response.json()
+            const randomQuote= async() => {
+                const response =await fetch('https://api.quotable.io/random')
+                const data =await response.json();
+                const searchimg=data.author;
+                const text=searchimg.split(' ');
+                const imagedata=await axios.get(`https://pixabay.com/api/?key=24162915-439cdea99849b510b56191825&q=${text[0]}+${text[1]}&image_type=photo`)
+                .then((imagedata)=>{
+                    if(imagedata["data"]["totalHits"]===0){
+                        const imgurl ="https://dynamicdistributors.in/wp-content/uploads/2021/02/114-1149847_avatar-unknown-dp.jpg";
+                        res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:imgurl});
+                    }
+                    else{
+                        const imgurl=(imagedata["data"]["hits"][0]["webformatURL"])
+                        res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:imgurl});
+                    }
+                    
+                })
+                .catch((error)=>{
+                    // console.log(error)
+                    res.redirect('/quote')
+                })
                 // console.log(`${data.content} —${data.author}`)
                 // res.send(`${data.content} —${data.author}`)
-                const text=await getimage(data);
+                
                 // console.log(text);
-                res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:text});
+                // res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:imgurl});
+                return
             }
-            randomQuote()
+            randomQuote();
+            // const data=randomQuote().then((data)=>{
+            //     const text= getimage(data);
+            //     res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:text});
+            //     // text.then((text)=>{
+            //     //     console.log(data,text);
+            //     //     res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:text});
+            //         // res.render('index',{content:data["content"],author:data["author"],login:true,email:EMAIL,imageurl:text});
+            //     // })
+            //     return data;
+            // });
+            // const text=getimage(data);
+            // text.then((text)=>{
+            //     console.log(data,text);
+            //     res.render('index',{content:data.content,author:data.author,login:true,email:EMAIL,imageurl:text});
+            // })
+            // res.render('home',{login:true})
         }
         else{
             res.render('login',{login:false});
@@ -95,19 +131,6 @@ app.get('/quote',(req,res)=>{
     .catch((error)=>{
         res.render('register',{login:false});
     })
-    // if(LOGIN){
-    //     async function randomQuote() {
-    //         const response = await fetch('https://api.quotable.io/random')
-    //         const data = await response.json()
-    //         // console.log(`${data.content} —${data.author}`)
-    //         // res.send(`${data.content} —${data.author}`)
-    //         res.render('index',{content:data.content,author:data.author});
-    //     }
-    //     randomQuote()
-    // }
-    // else{
-    //     res.render('login');
-    // }
 })
 
 app.use(express.urlencoded({extended:true}));
@@ -173,19 +196,6 @@ app.get('/profile',(req,res)=>{
     .catch((error)=>{
         res.render('register',{login:false});
     })
-    // if(LOGIN){
-    //     res.render('profile',
-    //     {
-    //         // nickname:req.oidc.user.nickname,
-    //         // email:req.oidc.user.email
-    //         nickname:NICKNAME,
-    //         email:EMAIL
-    //     });
-    // }
-    // else{
-    //     res.render('login');
-    // }
-    
 })
 
 const updateDb=async (EMAIL,login)=>{
@@ -211,8 +221,7 @@ app.get('/logout',(req,res)=>{
     LOGIN=false;
     const user=User.findOne({email:EMAIL})
     .then((result)=>{
-        result.islogin=false;
-        updateDb(EMAIL,result.islogin)
+        updateDb(EMAIL,false);
     })
     res.render('error',{login:false});
 })
@@ -223,10 +232,10 @@ app.get('/register',(req,res)=>{
 })
 
 app.use(express.urlencoded({extended:true}));
-app.post('/register',async (req,res)=>{
+app.post('/register',(req,res)=>{
     try{
         const user=new User(req.body);
-        const saved=await user.save();
+        const saved= user.save();
         res.redirect('/login');
     }catch(error){
         res.status(400).send(error);
@@ -241,11 +250,13 @@ const addclient=(EMAIL,clientIp)=>{
     const current=new CurrentLogin({email:EMAIL,IP:clientIp})
     current.save();
 }
+app.use(express.urlencoded({extended:true}));
 app.post('/login',(req,res)=>{
     
     const user=User.findOne({email:req.body.email})
     .then((result)=>{
-        if(result.password===req.body.password){
+        // console.log(result);
+        if(result!==null && result.password===req.body.password){
             LOGIN=true;
             NICKNAME=result.name;
             EMAIL=result.email;
@@ -254,7 +265,7 @@ app.post('/login',(req,res)=>{
             var clientIp = requestIp.getClientIp(req);
             // console.log(clientIp);
             addclient(EMAIL,clientIp);
-
+            console.log("User is logged in successfully!");
             // res.send("User logged in successfully!");
             res.render('home',{login:true})
         }
@@ -266,7 +277,6 @@ app.post('/login',(req,res)=>{
     })
     
 })
-
 
 
 const port=process.env.PORT ||3000;
