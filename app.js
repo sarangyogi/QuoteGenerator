@@ -232,13 +232,14 @@ app.get('/register',(req,res)=>{
 })
 
 app.use(express.urlencoded({extended:true}));
-app.post('/register',(req,res)=>{
+app.post('/register',async(req,res)=>{
     try{
         const user=new User(req.body);
-        const saved= user.save();
+        const saved=await user.save();
         res.redirect('/login');
     }catch(error){
-        res.status(400).send(error);
+        // res.status(400).send(error);
+        res.redirect('/register');
     }
 })
 
@@ -251,9 +252,9 @@ const addclient=(EMAIL,clientIp)=>{
     current.save();
 }
 app.use(express.urlencoded({extended:true}));
-app.post('/login',(req,res)=>{
+app.post('/login',async(req,res)=>{
     
-    const user=User.findOne({email:req.body.email})
+    const user=await User.findOne({email:req.body.email})
     .then((result)=>{
         // console.log(result);
         if(result!==null && result.password===req.body.password){
